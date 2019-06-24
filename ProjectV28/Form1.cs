@@ -13,11 +13,22 @@ namespace ProjectV28
 {
     public partial class Form1 : Form
     {
+        string connectionString = @"Data Source=1U12PC;Initial Catalog=Students;Integrated Security=True;";
+
         DataSet ds;
+        string spetsialnosti = "SELECT * FROM spetsialnosti";
+
+        DataSet ds2;
+        string gruppa = "SELECT * FROM gruppa";
+
+        DataSet ds3;
+        string Students = "SELECT * FROM Students";
+
         SqlDataAdapter adapter;
         SqlCommandBuilder commandBuilder;
-        string sql = "SELECT * FROM spetsialnosti";
-        string connectionString = @"Data Source=1U12PC;Initial Catalog=Students;Integrated Security=True;";
+        
+        
+        
 
         public Form1()
         {
@@ -29,13 +40,26 @@ namespace ProjectV28
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                adapter = new SqlDataAdapter(sql, connection);
 
+                adapter = new SqlDataAdapter(spetsialnosti, connection);
                 ds = new DataSet();
                 adapter.Fill(ds);
-                dataGridView1.DataSource = ds.Tables[0];
-                // делаем недоступным столбец id для изменения
-                dataGridView1.Columns["id_spetsialnosti"].ReadOnly = true;
+                dataGridView1.DataSource = ds.Tables[0];                
+
+
+                adapter = new SqlDataAdapter(gruppa, connection);
+                ds2 = new DataSet();
+                adapter.Fill(ds2);
+                dataGridView2.DataSource = ds2.Tables[0];
+                dataGridView2.Columns["id_grupp"].Visible = false;
+
+
+                adapter = new SqlDataAdapter(Students, connection);
+                ds3 = new DataSet();
+                adapter.Fill(ds3);
+                dataGridView3.DataSource = ds3.Tables[0];
+                dataGridView3.Columns["id_grupp"].Visible = false;
+                dataGridView3.Columns["id_students"].Visible = false;
             }
         }
 
@@ -59,11 +83,36 @@ namespace ProjectV28
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                adapter = new SqlDataAdapter(sql, connection);
+                adapter = new SqlDataAdapter(spetsialnosti, connection);
                 commandBuilder = new SqlCommandBuilder(adapter);
                 adapter.Update(ds);
                 dataGridView1.Update();
             }
+        }
+
+        private void DataGridView1_RowHeaderMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            string a = dataGridView1.CurrentRow.Cells["name"].Value.ToString();
+            label1.Text = a;
+            string specialtyFilter = "SELECT * FROM gruppa WHERE name_spetsialnosti =  '" + a + "';";
+            adapter = new SqlDataAdapter(specialtyFilter, connectionString);
+            ds2 = new DataSet();
+
+            adapter.Fill(ds2);
+            dataGridView2.DataSource = ds2.Tables[0];
+        }
+
+        private void DataGridView2_RowHeaderMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            SqlDataAdapter adapter2;
+            string a = dataGridView2.CurrentRow.Cells["id_grupp"].Value.ToString();
+            label2.Text = a;
+            string StudentsFilter = "SELECT * FROM Students WHERE id_grupp =  '" + a + "';";
+            adapter2 = new SqlDataAdapter(StudentsFilter, connectionString);
+            ds3 = new DataSet();
+
+            adapter2.Fill(ds3);
+            dataGridView3.DataSource = ds3.Tables[0];
         }
     }
 }
